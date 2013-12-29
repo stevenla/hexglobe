@@ -31,7 +31,7 @@
         var WIDTH = window.innerWidth,
             HEIGHT = window.innerHeight;
 
-        scene.fog = new THREE.Fog(0x000000, 2, 6);
+        scene.fog = new THREE.Fog(0x000000, 3, 5);
 
         // Create and display renderer
         renderer = new THREE.WebGLRenderer({antialias: true});
@@ -97,7 +97,7 @@
         light.position.set(10, 50, 130);
         scene.add(light);
 
-        var icosahedron = new THREE.IcosahedronGeometry(1, 5);
+        var icosahedron = new THREE.IcosahedronGeometry(1, 6);
         geo = new THREE.Geometry();
 
         // Copy points
@@ -137,7 +137,7 @@
         }
 
         var material = new THREE.ParticleSystemMaterial({
-            size: 0.015,
+            size: 0.01,
             vertexColors: true
         });
 
