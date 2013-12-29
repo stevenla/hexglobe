@@ -4,6 +4,27 @@
 
     init();
 
+    function debugaxis(axisLength){
+        //Shorten the vertex function
+        function v(x,y,z){ 
+                return new THREE.Vertex(new THREE.Vector3(x,y,z)); 
+        }
+        
+        //Create axis (point1, point2, colour)
+        function createAxis(p1, p2, color){
+                var line, lineGeometry = new THREE.Geometry(),
+                lineMat = new THREE.LineBasicMaterial({color: color, lineWidth: 1});
+                lineGeometry.vertices.push(p1, p2);
+                line = new THREE.Line(lineGeometry, lineMat);
+                scene.add(line);
+        }
+        
+        createAxis(v(-0, 0, 0), v(axisLength, 0, 0), 0xFF0000);
+        createAxis(v(0, -0, 0), v(0, axisLength, 0), 0x00FF00);
+        createAxis(v(0, 0, -0), v(0, 0, axisLength), 0x0000FF);
+    }
+
+
     function init() {
         // Create the scene and set the scene size.
         scene = new THREE.Scene();
@@ -36,9 +57,11 @@
         start();
     }
 
-    var icosahedron;
+    var geo; 
 
     function start() {
+        debugaxis(1);
+        /*
         var vertShader = document.getElementById('vertexshader').innerHTML;
         var fragShader = document.getElementById('fragmentshader').innerHTML;
         var earth = THREE.ImageUtils.loadTexture('./earth.gif');
@@ -53,29 +76,94 @@
 
         var material = new THREE.ShaderMaterial({
             uniforms: uniforms,
+            attributes: attributes,
             vertexShader: vertShader,
             fragmentShader: fragShader
         });
+        */
+
+        
+        var mapCanvas = document.createElement('canvas');
+        mapCanvas.width = 256;
+        mapCanvas.height = 256;
+        document.getElementById('hidden').appendChild(mapCanvas);
+        var mapImage = document.getElementById('earth-image');
+        var mapContext = mapCanvas.getContext('2d');
+        mapContext.drawImage(mapImage, 0, 0, mapImage.width, mapImage.height);
 
         var light = new THREE.PointLight(0xffffff);
         light.position.set(10, 50, 130);
         scene.add(light);
 
-        icosahedron = new THREE.IcosahedronGeometry(1, 6);
+        var icosahedron = new THREE.IcosahedronGeometry(1, 6);
+        geo = new THREE.Geometry();
 
-        // Initialize colors
+        var minx = 999;
+        var maxx = 0;
+        var miny = 89;
+        var maxy = 0;
+
+        // Copy points
         for (var i in icosahedron.vertices) {
-            icosahedron.colors[i] = new THREE.Color();
+            var current = icosahedron.vertices[i];
+            var longitude = Math.atan2(current.z, current.x);
+            var latitude = Math.acos(current.y);
+            //var x = longitude / Math.PI;
+            //var y = Math.log( ( 1 + Math.sin(latitude) ) / ( 1 - Math.sin(latitude))) / ( 4 * Math.PI );
+            //y = latitude;
+
+            var mapX = -909;
+            if (current.x > 0 && current.z > 0) {
+                mapX = longitude / Math.PI / 2;
+            }
+            else if (current.x > 0 && current.z <= 0) {
+                mapX = 0.999 + longitude / Math.PI / 2;
+            }
+            else if (current.x <= 0 && current.z >= 0) {
+                mapX = longitude / Math.PI / 2;
+            }
+            else {
+                mapX = 0.999 + longitude / Math.PI / 2;
+            }
+
+            /*
+
+            var mapX = -longitude / Math.PI * 2;
+            if (current.x > 0)
+            {
+                mapX = longitude / Math.PI * 2;
+            }
+            */
+            var mapY = latitude / Math.PI;
+
+            try {
+                var data = mapContext.getImageData((1 - mapX) * 256, mapY * 256, 1, 1).data
+            }
+            catch (e) {
+            }
+                            minx = Math.min(minx, mapX);
+            maxx = Math.max(maxx, mapX);
+            miny = Math.min(miny, mapY);
+            maxy = Math.max(maxy, mapY);
+
+                geo.vertices.push(current);
+                geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
+            
         }
 
-        /*
+        console.log(minx, maxx, miny, maxy);
+
+        // Initialize colors
+        for (var i in geo.vertices) {
+            //geo.colors[i] = new THREE.Color();
+        }
+
         var material = new THREE.ParticleSystemMaterial({
-            size: 0.01,
+            size: 0.02,
             vertexColors: true
         });
-        */
 
-        var particleSys = new THREE.ParticleSystem(icosahedron, material);
+        var particleSys = new THREE.ParticleSystem(geo, material);
         scene.add(particleSys);
 
         animate();
@@ -86,9 +174,9 @@
     function animate() {
         requestAnimationFrame(animate);
 
-        var index = Math.floor(Math.random() * icosahedron.colors.length);
-        icosahedron.colors[index] = new THREE.Color().setHSL(Math.random(), 1.0, 0.5);
-        icosahedron.colorsNeedUpdate = true;
+        var index = Math.floor(Math.random() * geo.colors.length);
+        geo.colors[index] = new THREE.Color().setHSL(Math.random(), 1.0, 0.5);
+        //geo.colorsNeedUpdate = true;
 
         t += 1;
 

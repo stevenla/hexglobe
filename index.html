@@ -12,9 +12,17 @@
         canvas {
             position: absolute;
         }
+
+        #hidden { 
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+    <div id="hidden">
+        <img src="debug2.gif" id="earth-image">
+    </div>
 
     <script type="x-shader/x-vertex" id="vertexshader">
         uniform sampler2D map;
@@ -23,16 +31,18 @@
         attribute float size;
 
         varying vec3 vColor;
-        varying vec2 vUv;
-        varying vec3 vPos;
 
         void main() {
-            vColor = color;
-            vPos = position;
+            float angle = atan(position.x, position.z) + 3.14 / 2.0;
+            vec2 uv = vec2(angle / (2.0 * 3.14), position.y / 2.0 + 0.5);
+
+            vec4 textureColor = texture2D(map, uv);
+            float show = textureColor.r;
+            vColor = color * show;
 
             vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-            gl_PointSize = 2.0; 
+            gl_PointSize = size; 
             gl_Position = projectionMatrix * mvPosition;
         }
     </script>
@@ -41,14 +51,9 @@
         uniform sampler2D map;
 
         varying vec3 vColor;
-        varying vec3 vPos;
 
         void main() {
-            float angle = atan(vPos.x, vPos.z) + 3.14 / 2.0;
-            vec2 uv = vec2(angle / (2.0 * 3.14), vPos.y / 2.0 + 0.5);
-            vec4 textureColor = texture2D(map, uv);
-            float show = textureColor.r;
-            gl_FragColor = vec4(vColor * show, 1.0);
+            gl_FragColor = vec4(vColor, 1.0);
         }
     </script>
  
