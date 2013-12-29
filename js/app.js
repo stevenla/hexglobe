@@ -106,21 +106,7 @@
             var longitude = Math.atan2(current.z, current.x);
             var latitude = Math.acos(current.y);
 
-            // Currently needs all 4 cases to handle edge case
-            var mapX;
-            if (current.x > 0 && current.z > 0) {
-                mapX = longitude / Math.PI / 2;
-            }
-            else if (current.x > 0 && current.z <= 0) {
-                mapX = 0.999 + longitude / Math.PI / 2;
-            }
-            else if (current.x <= 0 && current.z >= 0) {
-                mapX = longitude / Math.PI / 2;
-            }
-            else {
-                mapX = 0.999 + longitude / Math.PI / 2;
-            }
-
+            var mapX = 0.5 + longitude / Math.PI / 2;
             var mapY = latitude / Math.PI;
 
             try {
@@ -153,8 +139,8 @@
         requestAnimationFrame(animate);
 
         var index = Math.floor(Math.random() * geo.colors.length);
-        geo.colors[index] = new THREE.Color().setHSL(Math.random(), 1.0, 0.5);
-        geo.colorsNeedUpdate = true;
+        // geo.colors[index] = new THREE.Color().setHSL(Math.random(), 1.0, 0.5);
+        // geo.colorsNeedUpdate = true;
 
         t += 1;
 
