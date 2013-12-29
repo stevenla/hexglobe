@@ -31,6 +31,8 @@
         var WIDTH = window.innerWidth,
             HEIGHT = window.innerHeight;
 
+        scene.fog = new THREE.Fog(0x000000, 2, 6);
+
         // Create and display renderer
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(WIDTH, HEIGHT);
@@ -152,7 +154,7 @@
 
         var index = Math.floor(Math.random() * geo.colors.length);
         geo.colors[index] = new THREE.Color().setHSL(Math.random(), 1.0, 0.5);
-        //geo.colorsNeedUpdate = true;
+        geo.colorsNeedUpdate = true;
 
         t += 1;
 
