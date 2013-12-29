@@ -95,24 +95,17 @@
         light.position.set(10, 50, 130);
         scene.add(light);
 
-        var icosahedron = new THREE.IcosahedronGeometry(1, 6);
+        var icosahedron = new THREE.IcosahedronGeometry(1, 5);
         geo = new THREE.Geometry();
-
-        var minx = 999;
-        var maxx = 0;
-        var miny = 89;
-        var maxy = 0;
 
         // Copy points
         for (var i in icosahedron.vertices) {
             var current = icosahedron.vertices[i];
             var longitude = Math.atan2(current.z, current.x);
             var latitude = Math.acos(current.y);
-            //var x = longitude / Math.PI;
-            //var y = Math.log( ( 1 + Math.sin(latitude) ) / ( 1 - Math.sin(latitude))) / ( 4 * Math.PI );
-            //y = latitude;
 
-            var mapX = -909;
+            // Currently needs all 4 cases to handle edge case
+            var mapX;
             if (current.x > 0 && current.z > 0) {
                 mapX = longitude / Math.PI / 2;
             }
@@ -126,40 +119,23 @@
                 mapX = 0.999 + longitude / Math.PI / 2;
             }
 
-            /*
-
-            var mapX = -longitude / Math.PI * 2;
-            if (current.x > 0)
-            {
-                mapX = longitude / Math.PI * 2;
-            }
-            */
             var mapY = latitude / Math.PI;
 
             try {
-                var data = mapContext.getImageData((1 - mapX) * 256, mapY * 256, 1, 1).data
+                var data = mapContext.getImageData((1 - mapX) * 256, mapY * 256, 1, 1).data;
             }
             catch (e) {
             }
-                            minx = Math.min(minx, mapX);
-            maxx = Math.max(maxx, mapX);
-            miny = Math.min(miny, mapY);
-            maxy = Math.max(maxy, mapY);
+            // Skip me if black
+            if (data[0] === 0 && data[1] === 0 && data[2] === 0)
+                continue;
 
-                geo.vertices.push(current);
-                geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
-            
-        }
-
-        console.log(minx, maxx, miny, maxy);
-
-        // Initialize colors
-        for (var i in geo.vertices) {
-            //geo.colors[i] = new THREE.Color();
+            geo.vertices.push(current);
+            geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
         }
 
         var material = new THREE.ParticleSystemMaterial({
-            size: 0.02,
+            size: 0.015,
             vertexColors: true
         });
 
