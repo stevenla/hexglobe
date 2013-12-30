@@ -103,17 +103,15 @@
         // Copy points
         for (var i in icosahedron.vertices) {
             var current = icosahedron.vertices[i];
-            var longitude = Math.atan2(current.z, current.x);
-            var latitude = Math.acos(current.y);
-
-            var mapX = 0.5 + longitude / Math.PI / 2;
-            var mapY = latitude / Math.PI;
+            var coords = rect2longlat(current); // Convert cartesian coords 
+            var mapUV = longlat2mapuv(coords);  // Get 0 to 1.0 from longlat
 
             try {
-                var data = mapContext.getImageData((1 - mapX) * 256, mapY * 256, 1, 1).data;
+                var data = mapContext.getImageData(mapUV.x * 256, mapUV.y * 256, 1, 1).data;
             }
             catch (e) {
             }
+
             // Skip me if black
             if (data[0] === 0 && data[1] === 0 && data[2] === 0)
                 continue;
@@ -133,12 +131,36 @@
         animate();
     }
 
+    function findNearestPointIndex(coords) {
+        var target = longlat2rect(coords);
+        var minDistance = 9999999999;
+        var minPointIndex;
+        for (var i in geo.vertices) {
+            var vertex = geo.vertices[i];
+            var distance = vertex.distanceToSquared(target);
+            if (distance < minDistance) {
+                minDistance = distance;
+                minPointIndex = i;
+            }
+        }
+        console.log(target);
+        return minPointIndex;
+    }
+
+    window.test = function(long, lat) {
+        var index = findNearestPointIndex({longitude: degree2radian(long), latitude: degree2radian(lat)});
+        console.log(index);
+        console.log(geo.vertices[index]);
+        geo.colors[index] = new THREE.Color('#ffffff');
+        geo.colorsNeedUpdate = true;
+    };
+
     var t = 0;
 
     function animate() {
         requestAnimationFrame(animate);
 
-        var index = Math.floor(Math.random() * geo.colors.length);
+        // var index = Math.floor(Math.random() * geo.colors.length);
         // geo.colors[index] = new THREE.Color().setHSL(Math.random(), 1.0, 0.5);
         // geo.colorsNeedUpdate = true;
 
