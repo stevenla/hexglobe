@@ -7,6 +7,8 @@ function rect2longlat(v) {
     }
 }
 
+// TODO: Use longlat only when referring to the degrees
+//       Use spherical when referring to radians
 function longlat2rect(coords) {
     var x = Math.sin(coords.longitude) * Math.cos(-coords.latitude);
     var y = Math.sin(coords.longitude) * Math.sin(-coords.latitude);

@@ -131,26 +131,41 @@
         animate();
     }
 
-    function findNearestPointIndex(coords) {
+    function findNearestPoint(coords) {
         var target = longlat2rect(coords);
         var minDistance = 9999999999;
+        var minPoint;
         var minPointIndex;
         for (var i in geo.vertices) {
             var vertex = geo.vertices[i];
             var distance = vertex.distanceToSquared(target);
             if (distance < minDistance) {
                 minDistance = distance;
+                minPoint = vertex;
                 minPointIndex = i;
             }
         }
-        console.log(target);
-        return minPointIndex;
+        return {
+            point: minPoint,
+            index: minPointIndex
+        };
     }
 
     window.test = function(long, lat) {
-        var index = findNearestPointIndex({longitude: degree2radian(long), latitude: degree2radian(lat)});
-        console.log(index);
-        console.log(geo.vertices[index]);
+        var nearest = findNearestPoint({longitude: degree2radian(long), latitude: degree2radian(lat)});
+        var index = nearest.index;
+        var point = nearest.point;
+
+        var extended = point.clone().multiplyScalar(1.5);
+
+        var lineGeometry = new THREE.Geometry();
+        lineGeometry.vertices.push(point.clone());
+        lineGeometry.vertices.push(extended);
+
+        var line = new THREE.Line(lineGeometry);
+
+        scene.add(line);
+
         geo.colors[index] = new THREE.Color('#ffffff');
         geo.colorsNeedUpdate = true;
     };
