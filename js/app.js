@@ -118,6 +118,7 @@
 
             geo.vertices.push(current);
             geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
+            //geo.colors.push(new THREE.Color('#dee209'));
         }
 
         var material = new THREE.ParticleSystemMaterial({
@@ -185,5 +186,6 @@
         controls.update();
     }
 
-
+    test( -122.116355, 37.402538); // Box
+    test(-98, 36);
 })();
