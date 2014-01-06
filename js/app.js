@@ -31,7 +31,7 @@
         var WIDTH = window.innerWidth,
             HEIGHT = window.innerHeight;
 
-        scene.fog = new THREE.Fog(0x000000, 2.5, 4.45);
+        scene.fog = new THREE.Fog(0x000000, 2.75, 3.25);
 
         // Create and display renderer
         renderer = new THREE.WebGLRenderer({antialias: true});
@@ -100,6 +100,8 @@
         var icosahedron = new THREE.IcosahedronGeometry(1, 6);
         geo = new THREE.Geometry();
 
+        var gradient = generate3ColorGradientFn(0x000000, 0xe19e0f, 0xffffff);
+
         // Copy points
         for (var i in icosahedron.vertices) {
             var current = icosahedron.vertices[i];
@@ -117,8 +119,9 @@
                 continue;
 
             geo.vertices.push(current);
-            geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
-            //geo.colors.push(new THREE.Color('#dee209'));
+            //geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
+            var color = gradient(Math.random());
+            geo.colors.push(color);
         }
 
         var material = new THREE.ParticleSystemMaterial({
@@ -157,13 +160,14 @@
         var index = nearest.index;
         var point = nearest.point;
 
-        var extended = point.clone().multiplyScalar(1.5);
+        var extended = point.clone().multiplyScalar(1 + Math.random()/2);
 
         var lineGeometry = new THREE.Geometry();
         lineGeometry.vertices.push(point.clone());
         lineGeometry.vertices.push(extended);
 
         var line = new THREE.Line(lineGeometry);
+        line.material.color = new THREE.Color(0x31e7ce);
 
         scene.add(line);
 
