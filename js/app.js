@@ -180,7 +180,7 @@
         var index = nearest.index;
         var point = nearest.point;
 
-        var extended = point.clone().multiplyScalar(1 + Math.random()/2);
+        var extended = point.clone().multiplyScalar(1.25 + Math.random()/4);
 
         var lineGeometry = new THREE.Geometry();
         lineGeometry.vertices.push(point.clone());
@@ -211,5 +211,6 @@
     }
 
     test( -122.116355, 37.402538); // Box
+    test( -118.441318, 34.074949); // UCLA
     test(-98, 36);
 })();
