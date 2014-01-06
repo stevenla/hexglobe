@@ -103,6 +103,8 @@
 
         var gradient = generate3ColorGradientFn(0x000000, 0xe19e0f, 0xffffff);
 
+        window.coordTree = MakeCoordTree();
+
         // Copy points
         for (var i in icosahedron.vertices) {
             var current = icosahedron.vertices[i];
@@ -123,6 +125,10 @@
             //geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
             var color = gradient(Math.random());
             geo.colors.push(color);
+            window.coordTree.insert({
+                longitude: coords.longitude,
+                latitude: coords.latitude + Math.PI / 2
+            }, current);
         }
 
         var material = new THREE.ParticleSystemMaterial({
@@ -137,6 +143,19 @@
     }
 
     function findNearestPoint(coords) {
+        /*
+        Attempt to use a tree instead of O(N) searching through each, doesn't
+        work quite yet. Probably need to unify coordinate system with a class.
+        Currently too hard to convert to and from different coordinates
+
+        console.log(coords);
+        var closest = window.coordTree.getClosest(coords);
+        console.log(closest);
+        return {
+            point: closest.vertex,
+            index: 0
+        }
+        */
         var target = longlat2rect(coords);
         var minDistance = 9999999999;
         var minPoint;

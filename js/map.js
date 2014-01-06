@@ -25,3 +25,7 @@ function longlat2mapuv(coords) {
 function degree2radian(degree) {
     return degree * (Math.PI / 180);
 }
+
+function radian2degree(radian) {
+    return radian / (Math.PI / 180);
+}
