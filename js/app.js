@@ -31,7 +31,7 @@
         var WIDTH = window.innerWidth,
             HEIGHT = window.innerHeight;
 
-        scene.fog = new THREE.Fog(0x000000, 3, 5);
+        scene.fog = new THREE.Fog(0x000000, 2.5, 4.45);
 
         // Create and display renderer
         renderer = new THREE.WebGLRenderer({antialias: true});
