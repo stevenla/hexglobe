@@ -1,11 +1,15 @@
 (function() {
     var attributes, uniforms;
     var scene, camera, renderer, controls, textures;
+    var geo; 
 
     init();
 
+    /**
+     * Taken and modified from http://nooshu.com/debug-axes-in-three-js
+     * Change: doesn't draw negative axes
+     */
     function debugaxis(axisLength){
-        return;
         //Shorten the vertex function
         function v(x,y,z){ 
                 return new THREE.Vertex(new THREE.Vector3(x,y,z)); 
@@ -20,13 +24,12 @@
                 scene.add(line);
         }
         
-        createAxis(v(-0, 0, 0), v(axisLength, 0, 0), 0xFF0000);
-        createAxis(v(0, -0, 0), v(0, axisLength, 0), 0x00FF00);
-        createAxis(v(0, 0, -0), v(0, 0, axisLength), 0x0000FF);
+        createAxis(v(0, 0, 0), v(axisLength, 0, 0), 0xFF0000);
+        createAxis(v(0, 0, 0), v(0, axisLength, 0), 0x00FF00);
+        createAxis(v(0, 0, 0), v(0, 0, axisLength), 0x0000FF);
     }
 
-
-    function init() {
+    function initGL() {
         // Create the scene and set the scene size.
         scene = new THREE.Scene();
         var WIDTH = window.innerWidth,
@@ -56,36 +59,11 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
         }
-
-        start();
     }
 
-    var geo; 
 
-    function start() {
-        debugaxis(1);
-        /*
-        var vertShader = document.getElementById('vertexshader').innerHTML;
-        var fragShader = document.getElementById('fragmentshader').innerHTML;
-        var earth = THREE.ImageUtils.loadTexture('./earth.gif');
-        uniforms = {
-            map: { type: 't', value: earth },
-        };
-
-        attributes = {
-            color: { type: 'c', value: [] },
-            size: { type: 'f', value: [] }
-        };
-
-        var material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            attributes: attributes,
-            vertexShader: vertShader,
-            fragmentShader: fragShader
-        });
-        */
-
-        
+    function initScene() {
+        // Create map canvas to pull pixel values from
         var mapCanvas = document.createElement('canvas');
         mapCanvas.width = 256;
         mapCanvas.height = 256;
@@ -101,15 +79,16 @@
         var icosahedron = new THREE.IcosahedronGeometry(1, 6);
         geo = new THREE.Geometry();
 
+        // Generate color generator for points
         var gradient = generate3ColorGradientFn(0x000000, 0xe19e0f, 0xffffff);
 
-        window.coordTree = MakeCoordTree();
+        //window.coordTree = MakeCoordTree();
 
-        // Copy points
+        // Copy points from icosahedron
         for (var i in icosahedron.vertices) {
             var current = icosahedron.vertices[i];
-            var coords = rect2longlat(current); // Convert cartesian coords 
-            var mapUV = longlat2mapuv(coords);  // Get 0 to 1.0 from longlat
+            var coordinate = new Coordinate().setVector3(current);
+            var mapUV = coordinate.getMapUV();
 
             try {
                 var data = mapContext.getImageData(mapUV.x * 256, mapUV.y * 256, 1, 1).data;
@@ -125,10 +104,12 @@
             //geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
             var color = gradient(Math.random());
             geo.colors.push(color);
+            /*
             window.coordTree.insert({
                 longitude: coords.longitude,
                 latitude: coords.latitude + Math.PI / 2
             }, current);
+*/
         }
 
         var material = new THREE.ParticleSystemMaterial({
@@ -138,11 +119,16 @@
 
         var particleSys = new THREE.ParticleSystem(geo, material);
         scene.add(particleSys);
+    }
 
+    function init() {
+        initGL();
+        initScene();
+        //debugaxis(1);
         animate();
     }
 
-    function findNearestPoint(coords) {
+    function findNearestPoint(coordinate) {
         /*
         Attempt to use a tree instead of O(N) searching through each, doesn't
         work quite yet. Probably need to unify coordinate system with a class.
@@ -156,13 +142,12 @@
             index: 0
         }
         */
-        var target = longlat2rect(coords);
         var minDistance = 9999999999;
         var minPoint;
         var minPointIndex;
         for (var i in geo.vertices) {
             var vertex = geo.vertices[i];
-            var distance = vertex.distanceToSquared(target);
+            var distance = vertex.distanceToSquared(coordinate.getVector3());
             if (distance < minDistance) {
                 minDistance = distance;
                 minPoint = vertex;
@@ -175,8 +160,9 @@
         };
     }
 
-    window.test = function(long, lat) {
-        var nearest = findNearestPoint({longitude: degree2radian(long), latitude: degree2radian(lat)});
+    window.test = function(longitude, latitude) {
+        var coordinate = new Coordinate().setGeographic(longitude, latitude);
+        var nearest = findNearestPoint(coordinate);
         var index = nearest.index;
         var point = nearest.point;
 

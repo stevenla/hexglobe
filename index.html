@@ -23,45 +23,12 @@
     <div id="hidden">
         <img src="debug2.gif" id="earth-image">
     </div>
-
-    <script type="x-shader/x-vertex" id="vertexshader">
-        uniform sampler2D map;
-
-        attribute vec3 color; 
-        attribute float size;
-
-        varying vec3 vColor;
-
-        void main() {
-            float angle = atan(position.x, position.z) + 3.14 / 2.0;
-            vec2 uv = vec2(angle / (2.0 * 3.14), position.y / 2.0 + 0.5);
-
-            vec4 textureColor = texture2D(map, uv);
-            float show = textureColor.r;
-            vColor = color * show;
-
-            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
-            gl_PointSize = size; 
-            gl_Position = projectionMatrix * mvPosition;
-        }
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentshader">
-        uniform sampler2D map;
-
-        varying vec3 vColor;
-
-        void main() {
-            gl_FragColor = vec4(vColor, 1.0);
-        }
-    </script>
  
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
 
     <script src="js/coordtree.js"></script>
-    <script src="js/map.js"></script>
+    <script src="js/coordinate.js"></script>
     <script src="js/colors.js"></script>
     <script src="js/app.js"></script>
 
