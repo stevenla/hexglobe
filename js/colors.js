@@ -7,10 +7,10 @@ function generate3ColorGradientFn(left, middle, right) {
     var color3 = new THREE.Color(right);
     return function(pos) {
         if (pos < 0.5) {
-            return color1.clone().lerp(color2, pos*2);
+            return color1.clone().lerp(color2, pos * 2);
         }
         else {
-            return color2.clone().lerp(color3, (pos-0.5)*2);
+            return color2.clone().lerp(color3, (pos - 0.5) * 2);
         }
     }
 }
