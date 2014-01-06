@@ -5,6 +5,7 @@
     init();
 
     function debugaxis(axisLength){
+        return;
         //Shorten the vertex function
         function v(x,y,z){ 
                 return new THREE.Vertex(new THREE.Vector3(x,y,z)); 
