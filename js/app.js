@@ -77,7 +77,7 @@
         geo = new THREE.Geometry();
 
         // Generate color generator for points
-        var gradient = generate3ColorGradientFn(0x000000, 0xe19e0f, 0xffffff);
+        var gradient = generate3ColorGradientFn(0x3e2c06, 0xe19e0f, 0xffffff);
 
         //window.coordTree = MakeCoordTree();
 
@@ -121,7 +121,7 @@
     function init() {
         initGL();
         initScene();
-        //debugaxis(1);
+        debugaxis(1);
         animate();
     }
 
@@ -163,19 +163,20 @@
         var index = nearest.index;
         var point = nearest.point;
 
-        var extended = point.clone().multiplyScalar(1.25 + Math.random()/4);
+        var onSphereCoordinate = new Coordinate().setVector3(point);
+        var length = 0.25 + Math.random() / 4;
 
         var lineGeometry = new THREE.Geometry();
-        lineGeometry.vertices.push(point.clone());
-        lineGeometry.vertices.push(extended);
+        lineGeometry.vertices.push(new THREE.Vector3(0, 0, 1));
+        lineGeometry.vertices.push(new THREE.Vector3(0, 0, 1 + length));
 
         var line = new THREE.Line(lineGeometry);
         line.material.color = new THREE.Color(0x31e7ce);
+        line.lookAt(point);
 
         scene.add(line);
 
-        geo.colors[index] = new THREE.Color('#ffffff');
-        geo.colorsNeedUpdate = true;
+        return;
     };
 
     var t = 0;
