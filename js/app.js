@@ -1,10 +1,7 @@
 (function() {
     var attributes, uniforms;
     var scene, camera, renderer, controls, textures;
-    var geo; 
-
-    init();
-
+    var geo;
     /**
      * Taken and modified from http://nooshu.com/debug-axes-in-three-js
      * Change: doesn't draw negative axes
@@ -143,7 +140,7 @@
         }
         */
         var minDistance = 9999999999;
-        var minPoint;
+        var minPoint = null;
         var minPointIndex;
         for (var i in geo.vertices) {
             var vertex = geo.vertices[i];
@@ -195,6 +192,8 @@
         renderer.render(scene, camera);
         controls.update();
     }
+
+    init();
 
     test( -122.116355, 37.402538); // Box
     test( -118.441318, 34.074949); // UCLA

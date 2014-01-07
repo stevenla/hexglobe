@@ -3,6 +3,7 @@
  * Supports cartesian (x y z), spherical (theta phi), geographic (long lat)
  */
 function Coordinate() {
+    this._vector = new THREE.Vector3();
 }
 
 Coordinate.prototype = {
@@ -11,34 +12,24 @@ Coordinate.prototype = {
     },
 
     getVector3: function() {
-        if (typeof this._x !== 'number')
-            return null;
-
-        return new THREE.Vector3(this._x, this._y, this._z);
+        return this._vector;
     },
 
     setCartesian: function(x, y, z) {
         if (typeof x === 'number')
-            this._x = x;
+            this._vector.setX(x);
         if (typeof y === 'number')
-            this._y = y;
+            this._vector.setY(y);
         if (typeof z === 'number')
-            this._z = z;
-        this._theta = Math.atan2(this._x, this._z);
-        this._phi = -Math.acos(this._y);
+            this._vector.setZ(z);
+        this._theta = Math.atan2(this._vector.x, this._vector.z);
+        this._phi = -Math.acos(this._vector.y);
 
         return this;
     },
 
     getCartesian: function() {
-        if (typeof this._x !== 'number')
-            return null;
-
-        return {
-            x: this._x,
-            y: this._y,
-            z: this._z
-        };
+        return this._vector;
     },
 
     setSpherical: function(theta, phi) {
@@ -46,9 +37,10 @@ Coordinate.prototype = {
             this._theta = theta;
         if (typeof phi === 'number')
             this._phi = phi;
-        this._x = Math.sin(this._theta) * Math.cos(-this._phi);
-        this._y = Math.sin(this._theta) * Math.sin(-this._phi);
-        this._z = Math.cos(this._theta);
+
+        this._vector.setX(Math.sin(this._theta) * Math.cos(-this._phi));
+        this._vector.setY(Math.sin(this._theta) * Math.sin(-this._phi));
+        this._vector.setZ(Math.cos(this._theta));
 
         return this;
     },
@@ -68,9 +60,8 @@ Coordinate.prototype = {
             this._theta = degree2radian(longitude);
         if (typeof latitude === 'number')
             this._phi = degree2radian(latitude);
-        this._x = Math.sin(this._theta) * Math.cos(-this._phi);
-        this._y = Math.sin(this._theta) * Math.sin(-this._phi);
-        this._z = Math.cos(this._theta);
+
+        this.setSpherical(this._theta, this._phi);
 
         return this;
     },
