@@ -1,54 +1,55 @@
 /**
- * A 4-ary tree of longitudes (-pi to pi) and latitudes (-pi/2 to pi/2)
+ * A 4-ary tree of Coordinate's spherical theta and phi values
  */
-function CoordNode(value, vertex) {
+function CoordNode(value) {
     this.value = value;
-    this.vertex = vertex;
-    this.moreLongMoreLat = null;
-    this.moreLongLessLat = null;
-    this.lessLongMoreLat = null;
-    this.lessLongLessLat = null;
+    this.moreThetaMorePhi = null;
+    this.moreThetaLessPhi = null;
+    this.lessThetaMorePhi = null;
+    this.lessThetaLessPhi = null;
 }
 
 function MakeCoordTree() {
-    return new CoordNode({longitude: 0, latitude: 0});
+    return new CoordNode(new Coordinate().setCartesian(0, 0, 1));
 }
 
-window.maxLat = -999999;
-window.minLat = 888888;
+window.maxPhi = -999999;
+window.minPhi = 888888;
 
 function pickChild(a, b) {
-    window.maxLat = Math.max(window.maxLat, b.latitude);
-    window.minLat = Math.min(window.minLat, b.latitude);
-    if (a.longitude < b.longitude) {
-        if (a.latitude < b.latitude)
-            return 'moreLongMoreLat';
+    window.maxPhi = Math.max(window.maxPhi, b.getSpherical().phi);
+    window.minPhi = Math.min(window.minPhi, b.getSpherical().phi);
+    if (a.getSpherical().theta < b.getSpherical().theta) {
+        if (a.getSpherical().phi < b.getSpherical().phi)
+            return 'moreThetaMorePhi';
         else
-            return 'moreLongLessLat';
+            return 'moreThetaLessPhi';
     }
     else {
-        if (a.latitude < b.latitude)
-            return 'lessLongMoreLat';
+        if (a.getSpherical().phi < b.getSpherical().phi)
+            return 'lessThetaMorePhi';
         else
-            return 'lessLongLessLat';
+            return 'lessThetaLessPhi';
     }
 }
 
 CoordNode.prototype = {
-    insert: function(coord, vertex) {
+    insert: function(coord) {
         var childName = pickChild(this.value, coord);
 
         if (this[childName] === null) {
-            this[childName] = new CoordNode(coord, vertex);
+            this[childName] = new CoordNode(coord);
             return this[childName];
         }
         else {
-            return this[childName].insert(coord, vertex);
+            return this[childName].insert(coord);
         }
     },
 
     getClosest: function(coord, closest) {
         var childName = pickChild(this.value, coord);
+        console.log('-------' + childName + '------------------------------');
+        console.log(this.value);
 
         if (this[childName] === null) {
             return closest;
@@ -56,17 +57,17 @@ CoordNode.prototype = {
 
         // Pick a new closest point
         if (typeof closest === 'undefined') {
-            closest = {
-                longitude: 9999999999999,
-                latitude: 9999999999999
-            }
+            closest = this[childName].value;
+            return this[childName].getClosest(coord, closest);
         }
-        var newLatDiff = Math.pow(coord.latitude - this[childName].value.latitude, 2);
-        var newLongDiff = Math.pow(coord.longitude - this[childName].value.longitude, 2);
-        var oldLatDiff = Math.pow(closest.latitude - this[childName].value.latitude, 2);
-        var oldLongDiff = Math.pow(closest.longitude - this[childName].value.longitude, 2);
-        if ( (newLatDiff + newLongDiff) < (oldLatDiff + oldLongDiff) ) {
-            closest = this[childName];
+
+        //console.log(this[childName].value);
+        var distanceClosest = closest.getVector3().distanceToSquared(coord.getVector3());
+        var distanceCurrent = this[childName].value.getVector3().distanceToSquared(coord.getVector3());
+        if ( distanceCurrent < distanceClosest ) {
+            closest = this[childName].value;
+            console.log('new closest');
+            console.log(closest);
         }
 
         return this[childName].getClosest(coord, closest);

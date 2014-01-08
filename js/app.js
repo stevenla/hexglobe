@@ -79,7 +79,10 @@
         // Generate color generator for points
         var gradient = generate3ColorGradientFn(0x3e2c06, 0xe19e0f, 0xffffff);
 
-        //window.coordTree = MakeCoordTree();
+        window.coordTree = MakeCoordTree();
+        var randomized = [];
+        var totalLength = icosahedron.vertices.length;
+        randomized.length = totalLength;
 
         // Copy points from icosahedron
         for (var i in icosahedron.vertices) {
@@ -101,12 +104,12 @@
             //geo.colors.push(new THREE.Color('rgb(' + data[0] + ',' + data[1] + ',' + data[2] +')'));
             var color = gradient(Math.random());
             geo.colors.push(color);
-            /*
-            window.coordTree.insert({
-                longitude: coords.longitude,
-                latitude: coords.latitude + Math.PI / 2
-            }, current);
-*/
+            randomized[Math.floor(Math.random() * totalLength)] = coordinate;
+        }
+
+        // Insert values into tree randomized for a somewhat more balanced tree maybe
+        for (var i in randomized) {
+            window.coordTree.insert(randomized[i]);
         }
 
         var material = new THREE.ParticleSystemMaterial({
@@ -176,7 +179,7 @@
 
         scene.add(line);
 
-        return;
+        return point;
     };
 
     var t = 0;
@@ -196,7 +199,8 @@
 
     init();
 
-    test( -122.116355, 37.402538); // Box
+    window.box = test( -122.116355, 37.402538); // Box
+    console.log(new Coordinate().setVector3(box));
     test( -118.441318, 34.074949); // UCLA
     test(-98, 36);
 })();
