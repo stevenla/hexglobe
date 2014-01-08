@@ -1,4 +1,15 @@
 /**
+ * THIS ACTUALLY DOESN'T WORK FOR WHAT I WANT TO DO. I want to snap arbitrary
+ * longitudes and latitudes to points on the globe, and thought a tree would
+ * work. However, when searching for a point the tree may navigate to the wrong
+ * child. Each node has four children, one for each "quadrant" the subtree is
+ * in. Many times, though, the actual geographic coordinate is in a different
+ * quadrant than its actual closest point. Therefore, it'd be difficult to
+ * guarantee the point the tree found is in fact the closest point to the given
+ * coordinate parameter.
+ */
+ 
+ /* 
  * A 4-ary tree of Coordinate's spherical theta and phi values
  */
 function CoordNode(value) {
